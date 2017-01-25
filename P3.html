@@ -11769,6 +11769,7 @@ div#notebook {
 <span class="kn">import</span> <span class="nn">sqlite3</span> <span class="kn">as</span> <span class="nn">lite</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">P3</span>
 </pre></div>
 
 </div>
@@ -11796,39 +11797,10 @@ div#notebook {
                  <span class="s1">&#39;Campo&#39;</span><span class="p">,</span> <span class="s1">&#39;Mirante&#39;</span><span class="p">,</span> <span class="s1">&#39;Acesso&#39;</span><span class="p">,</span> <span class="s1">&#39;Alameda&#39;</span><span class="p">,</span> <span class="s1">&#39;Rodovia&#39;</span><span class="p">,</span> <span class="s1">&#39;Parque&#39;</span><span class="p">,</span> <span class="s1">&#39;Auto&#39;</span><span class="p">,</span> <span class="s1">&#39;RJ-125&#39;</span><span class="p">]</span>
 <span class="c1"># Convertendo todos os dados para unicode, assim pode ser comparado</span>
 <span class="n">expected_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">expected_names</span><span class="p">]</span>
-
-<span class="k">def</span> <span class="nf">is_street_name</span><span class="p">(</span><span class="n">elem</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Verifica se o elemento é um nome de rua&#39;&#39;&#39;</span>
-    <span class="k">return</span> <span class="p">(</span><span class="n">elem</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;k&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;addr:street&#39;</span><span class="p">)</span>
-
-<span class="k">def</span> <span class="nf">first_word</span><span class="p">(</span><span class="n">street_name</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Pega a primeira palavra da string&#39;&#39;&#39;</span>
-    <span class="k">return</span> <span class="n">street_name</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
-
-<span class="k">def</span> <span class="nf">audit</span><span class="p">(</span><span class="n">osm_file</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Verifica o início do nome da rua que não era esperado e coloca todas as ocorrências em um dicionário&#39;&#39;&#39;</span>
-    <span class="n">street_types_unexpected</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">for</span> <span class="n">event</span><span class="p">,</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">ET</span><span class="o">.</span><span class="n">iterparse</span><span class="p">(</span><span class="n">osm_file</span><span class="p">,</span> <span class="n">events</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;start&quot;</span><span class="p">,)):</span>
-        <span class="k">if</span> <span class="n">elem</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s1">&#39;way&#39;</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">elem</span><span class="o">.</span><span class="n">iter</span><span class="p">(</span><span class="s1">&#39;tag&#39;</span><span class="p">):</span>
-                <span class="k">if</span> <span class="n">is_street_name</span><span class="p">(</span><span class="n">tag</span><span class="p">):</span>
-                    <span class="k">if</span> <span class="n">first_word</span><span class="p">(</span><span class="n">tag</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;v&#39;</span><span class="p">])</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">expected_names</span><span class="p">:</span>
-                        <span class="k">if</span> <span class="n">first_word</span><span class="p">(</span><span class="n">tag</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;v&#39;</span><span class="p">])</span> <span class="ow">in</span> <span class="n">street_types_unexpected</span><span class="p">:</span>
-                            <span class="n">street_types_unexpected</span><span class="p">[</span><span class="n">first_word</span><span class="p">(</span><span class="n">tag</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;v&#39;</span><span class="p">])]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tag</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;v&#39;</span><span class="p">])</span>
-                        <span class="k">else</span><span class="p">:</span>
-                            <span class="n">street_types_unexpected</span><span class="p">[</span><span class="n">first_word</span><span class="p">(</span><span class="n">tag</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;v&#39;</span><span class="p">])]</span> <span class="o">=</span> <span class="p">[</span><span class="n">tag</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;v&#39;</span><span class="p">]]</span>
-    <span class="k">return</span> <span class="n">street_types_unexpected</span>
-
-<span class="k">def</span> <span class="nf">print_unexpected</span><span class="p">(</span><span class="n">street_types_unexpected</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Apresenta as ruas com nome para ser aprimoradas&#39;&#39;&#39;</span>
-    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">values</span> <span class="ow">in</span> <span class="n">street_types_unexpected</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
-        <span class="k">print</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">values</span><span class="p">:</span>
-            <span class="k">print</span><span class="p">(</span><span class="s2">&quot;--- &quot;</span> <span class="o">+</span> <span class="n">value</span><span class="p">)</span>
             
-<span class="n">street_types_unexpected</span> <span class="o">=</span> <span class="n">audit</span><span class="p">(</span><span class="s1">&#39;rio-de-janeiro_brazil.osm&#39;</span><span class="p">)</span>
+<span class="n">street_types_unexpected</span> <span class="o">=</span> <span class="n">P3</span><span class="o">.</span><span class="n">audit_1</span><span class="p">(</span><span class="s1">&#39;rio-de-janeiro_brazil.osm&#39;</span><span class="p">,</span> <span class="n">expected_names</span><span class="p">)</span>
 
-<span class="n">print_unexpected</span><span class="p">(</span><span class="n">street_types_unexpected</span><span class="p">)</span>
+<span class="n">P3</span><span class="o">.</span><span class="n">print_unexpected</span><span class="p">(</span><span class="n">street_types_unexpected</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -11852,51 +11824,6 @@ Praca
 --- Praca Marechal Floriano
 Bernadino
 --- Bernadino dos Santos
-Professor
---- Professor Fioravanti Di Piero
-rua
---- rua G
-Estr.
---- Estr. da Paciência
-Lourival
---- Lourival Tavares de Paula
-Mário
---- Mário Agostinelli
---- Mário Agostinelli
---- Mário Agostinelli
---- Mário Agostinelli
---- Mário Agostinelli
-Trav
---- Trav Mario dos Santos
-Heráclito
---- Heráclito Graça
-Av
---- Av Castelo Branco
---- Av Rotary
---- Av Padre Anchieta
-Alfredo
---- Alfredo Ceschiatti
---- Alfredo Ceschiatti
---- Alfredo Ceschiatti
---- Alfredo Ceschiatti
---- Alfredo Ceschiatti
-R.
---- R. Ten. Ronald Santoro
---- R. Miguel Gustavo
---- R. Miguel Gustavo
---- R. Miguel Gustavo
---- R. Miguel Gustavo
---- R. Miguel Gustavo
---- R. Miguel Gustavo
---- R. Silva Cardoso
-Afredo
---- Afredo Ceschiatti
-Marquês
---- Marquês de Paraná
-Dias
---- Dias Pereira
-Presidente
---- Presidente Tancredo Neves
 </pre>
 </div>
 </div>
@@ -11930,27 +11857,15 @@ Presidente
 <div class="prompt input_prompt">In&nbsp;[3]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="k">def</span> <span class="nf">is_amenity</span><span class="p">(</span><span class="n">elem</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Verifica se o elemento é um nome de rua&#39;&#39;&#39;</span>
-    <span class="k">return</span> <span class="p">(</span><span class="n">elem</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;k&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;amenity&#39;</span><span class="p">)</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">store_types</span> <span class="o">=</span> <span class="n">P3</span><span class="o">.</span><span class="n">audit_2</span><span class="p">(</span><span class="s1">&#39;rio-de-janeiro_brazil.osm&#39;</span><span class="p">)</span>
 
-<span class="k">def</span> <span class="nf">audit</span><span class="p">(</span><span class="n">osm_file</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Verifica o início do nome da rua que não era esperado e coloca todas as ocorrências em um dicionário&#39;&#39;&#39;</span>
-    <span class="n">store_types</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">for</span> <span class="n">event</span><span class="p">,</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">ET</span><span class="o">.</span><span class="n">iterparse</span><span class="p">(</span><span class="n">osm_file</span><span class="p">,</span> <span class="n">events</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;start&quot;</span><span class="p">,)):</span>
-        <span class="k">if</span> <span class="n">elem</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s1">&#39;node&#39;</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">elem</span><span class="o">.</span><span class="n">iter</span><span class="p">(</span><span class="s1">&#39;tag&#39;</span><span class="p">):</span>
-                <span class="k">if</span> <span class="n">is_amenity</span><span class="p">(</span><span class="n">tag</span><span class="p">):</span>
-                    <span class="k">if</span> <span class="n">tag</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;v&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">store_types</span><span class="p">:</span>
-                        <span class="n">store_types</span><span class="p">[</span><span class="n">tag</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;v&#39;</span><span class="p">]]</span> <span class="o">+=</span> <span class="mi">1</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="n">store_types</span><span class="p">[</span><span class="n">tag</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;v&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="mi">1</span>
-    <span class="k">return</span> <span class="n">store_types</span>
-            
-<span class="n">store_types</span> <span class="o">=</span> <span class="n">audit</span><span class="p">(</span><span class="s1">&#39;rio-de-janeiro_brazil.osm&#39;</span><span class="p">)</span>
-
+<span class="k">print</span><span class="p">(</span><span class="s2">&quot;Uma pequena amostra dos dados:&quot;</span><span class="p">)</span>
+<span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span>
 <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">store_types</span><span class="o">.</span><span class="n">iterkeys</span><span class="p">()):</span>
+    <span class="n">counter</span> <span class="o">+=</span> <span class="mi">1</span>
     <span class="k">print</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">store_types</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">counter</span> <span class="o">==</span> <span class="mi">6</span><span class="p">:</span>
+        <span class="k">break</span>
 </pre></div>
 
 </div>
@@ -11963,122 +11878,13 @@ Presidente
 
 <div class="output_area"><div class="prompt"></div>
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>Academia: 1
+<pre>Uma pequena amostra dos dados:
+Academia: 1
 Cassino: 1
 Clínica: 1
 Clínica Odontológica: 1
 Curso de Idiomas: 1
 Empada Brasil: 1
-Estofadora: 1
-Lanchonete e Pizzaria: 1
-Loteria: 1
-Mil sabores: 1
-Ponto de Taxis: 1
-Produtos Defumados: 1
-Reform 455: 1
-Rio Decor: 1
-UNILA: 1
-arts_centre: 6
-atm: 74
-baby_hatch: 1
-bank: 488
-bar: 221
-bbq: 3
-bench: 74
-bicycle_parking: 1469
-bicycle_rental: 261
-bicycle_repair_station: 1
-brothel: 14
-building: 4
-bureau_de_change: 7
-bus_station: 155
-cafe: 127
-car_fixing: 3
-car_rental: 9
-car_wash: 25
-cartorio: 1
-casino: 1
-charging_station: 1
-childcare: 13
-ciep 113: 1
-cinema: 28
-clinic: 36
-clock: 21
-clothes_fixing: 1
-clothes_washing: 1
-club: 1
-college: 15
-community_centre: 8
-courthouse: 9
-dentist: 21
-doctors: 29
-dojo: 2
-drinking_water: 12
-driving_school: 5
-eletronics_fix: 1
-elevator: 2
-embassy: 36
-estofador: 1
-f: 1
-fast_food: 821
-ferry_terminal: 12
-fire_station: 37
-fisioterapeuta: 1
-food_court: 3
-fountain: 30
-fuel: 445
-grave_yard: 2
-gym: 17
-hospital: 154
-ice_cream: 5
-keymaker: 5
-kindergarten: 133
-lavoir: 1
-library: 15
-locksmith: 2
-love_hotel: 21
-marketplace: 13
-masonic_lodge: 1
-medical: 1
-music_venue: 1
-nightclub: 19
-organic;fast_food: 1
-other: 1
-parking: 222
-parking_entrance: 53
-pet: 1
-pharmacy: 344
-place_of_worship: 390
-police: 159
-post_box: 45
-post_office: 66
-pub: 390
-public_building: 38
-recycling: 8
-refresher: 1
-register_office: 6
-rescue_station: 1
-restaurant: 1027
-school: 1536
-seamstress: 3
-security_booth: 1
-shelter: 15
-shower: 1
-social_facility: 2
-stationery: 1
-studio: 11
-taxi: 122
-tec_common: 6
-telephone: 371
-theatre: 39
-toilets: 158
-townhall: 14
-university: 24
-vending_machine: 7
-veterinary: 31
-waste_basket: 109
-waste_disposal: 4
-yes: 1
 </pre>
 </div>
 </div>
@@ -12128,31 +11934,7 @@ yes: 1
 <span class="n">con</span> <span class="o">=</span> <span class="n">lite</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s1">&#39;rio-de-janeiro_brazil.db&#39;</span><span class="p">)</span>
 
 <span class="c1"># Criando as tabelas na base de dados</span>
-<span class="n">cur</span> <span class="o">=</span> <span class="n">con</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>    
-<span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;CREATE TABLE nodes (</span>
-<span class="s1">id INTEGER PRIMARY KEY NOT NULL,</span>
-<span class="s1">lat REAL,</span>
-<span class="s1">lon REAL,</span>
-<span class="s1">user TEXT,</span>
-<span class="s1">uid INTEGER</span>
-<span class="s1">);&#39;&#39;&#39;</span><span class="p">)</span>
-<span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;CREATE TABLE nodes_tags (</span>
-<span class="s1">id INTEGER,</span>
-<span class="s1">key TEXT,</span>
-<span class="s1">value TEXT,</span>
-<span class="s1">FOREIGN KEY (id) REFERENCES nodes(id)</span>
-<span class="s1">);&#39;&#39;&#39;</span><span class="p">)</span>
-<span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;CREATE TABLE ways (</span>
-<span class="s1">id INTEGER PRIMARY KEY NOT NULL,</span>
-<span class="s1">user TEXT,</span>
-<span class="s1">uid INTEGER</span>
-<span class="s1">);&#39;&#39;&#39;</span><span class="p">)</span>
-<span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;CREATE TABLE ways_tags (</span>
-<span class="s1">id INTEGER NOT NULL,</span>
-<span class="s1">key TEXT NOT NULL,</span>
-<span class="s1">value TEXT NOT NULL,</span>
-<span class="s1">FOREIGN KEY (id) REFERENCES ways(id)</span>
-<span class="s1">);&#39;&#39;&#39;</span><span class="p">)</span>
+<span class="n">P3</span><span class="o">.</span><span class="n">create_tables_sql</span><span class="p">(</span><span class="n">con</span><span class="p">)</span>
 <span class="n">con</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
 <span class="n">con</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 </pre></div>
@@ -12169,20 +11951,7 @@ yes: 1
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="c1"># Inserindo os dados na base de dados</span>
 <span class="n">con</span> <span class="o">=</span> <span class="n">lite</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s1">&#39;rio-de-janeiro_brazil.db&#39;</span><span class="p">)</span>
-<span class="n">cur</span> <span class="o">=</span> <span class="n">con</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
-<span class="k">for</span> <span class="n">event</span><span class="p">,</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">ET</span><span class="o">.</span><span class="n">iterparse</span><span class="p">(</span><span class="s1">&#39;rio-de-janeiro_brazil.osm&#39;</span><span class="p">,</span> <span class="n">events</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;start&quot;</span><span class="p">,)):</span>
-    <span class="k">if</span> <span class="n">elem</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s1">&#39;node&#39;</span><span class="p">:</span>
-        <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;INSERT INTO nodes VALUES(&quot;</span> <span class="o">+</span> <span class="n">elem</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;,&quot;</span> <span class="o">+</span> <span class="n">elem</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;lat&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;,&quot;</span>
-                    <span class="o">+</span> <span class="n">elem</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;lon&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;,&#39;&quot;</span> <span class="o">+</span> <span class="n">elem</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;user&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;&#39;,&quot;</span> <span class="o">+</span> <span class="n">elem</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;uid&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;)&quot;</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">elem</span><span class="o">.</span><span class="n">iter</span><span class="p">(</span><span class="s1">&#39;tag&#39;</span><span class="p">):</span>
-            <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;INSERT INTO nodes_tags VALUES(&quot;</span> <span class="o">+</span> <span class="n">elem</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;,&#39;&quot;</span> <span class="o">+</span> <span class="n">tag</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;k&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;&#39;,&#39;&quot;</span>
-                            <span class="o">+</span> <span class="n">tag</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;v&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span><span class="p">,</span><span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;&#39;)&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">elem</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s1">&#39;way&#39;</span><span class="p">:</span>
-        <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;INSERT INTO ways VALUES(&quot;</span> <span class="o">+</span> <span class="n">elem</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;,&#39;&quot;</span> 
-                    <span class="o">+</span> <span class="n">elem</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;user&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;&#39;,&quot;</span> <span class="o">+</span> <span class="n">elem</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;uid&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;)&quot;</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">elem</span><span class="o">.</span><span class="n">iter</span><span class="p">(</span><span class="s1">&#39;tag&#39;</span><span class="p">):</span>
-            <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;INSERT INTO ways_tags VALUES(&quot;</span> <span class="o">+</span> <span class="n">elem</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;,&#39;&quot;</span> <span class="o">+</span> <span class="n">tag</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;k&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;&#39;,&#39;&quot;</span>
-                    <span class="o">+</span> <span class="n">tag</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;v&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span><span class="p">,</span><span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;&#39;)&quot;</span><span class="p">)</span>
+<span class="n">P3</span><span class="o">.</span><span class="n">create_data_sql</span><span class="p">(</span><span class="n">con</span><span class="p">,</span><span class="s1">&#39;rio-de-janeiro_brazil.osm&#39;</span><span class="p">)</span>
 <span class="n">con</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
 <span class="n">con</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 </pre></div>
@@ -12217,50 +11986,10 @@ yes: 1
 <div class="prompt input_prompt">In&nbsp;[6]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="n">words_to_correct</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Servidão&#39;</span><span class="p">,</span> <span class="s1">&#39;15&#39;</span><span class="p">,</span> <span class="s1">&#39;Pça.&#39;</span><span class="p">,</span> <span class="s1">&#39;Praca&#39;</span><span class="p">,</span> <span class="s1">&#39;Bernadino&#39;</span><span class="p">,</span> <span class="s1">&#39;Professor&#39;</span><span class="p">,</span> <span class="s1">&#39;rua&#39;</span><span class="p">,</span> <span class="s1">&#39;Estr.&#39;</span><span class="p">,</span> <span class="s1">&#39;Lourival&#39;</span><span class="p">,</span>
-                    <span class="s1">&#39;Mário&#39;</span><span class="p">,</span> <span class="s1">&#39;Trav&#39;</span><span class="p">,</span> <span class="s1">&#39;Heráclito&#39;</span><span class="p">,</span> <span class="s1">&#39;Av&#39;</span><span class="p">,</span> <span class="s1">&#39;Alfredo&#39;</span><span class="p">,</span> <span class="s1">&#39;R.&#39;</span><span class="p">,</span> <span class="s1">&#39;Afredo&#39;</span><span class="p">,</span> <span class="s1">&#39;Marquês&#39;</span><span class="p">,</span> <span class="s1">&#39;Dias&#39;</span><span class="p">,</span> <span class="s1">&#39;Presidente&#39;</span><span class="p">]</span>
-<span class="c1"># Convertendo todos os dados para unicode, assim pode ser comparado</span>
-<span class="n">words_to_correct</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">words_to_correct</span><span class="p">]</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="n">con</span> <span class="o">=</span> <span class="n">lite</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s1">&#39;rio-de-janeiro_brazil.db&#39;</span><span class="p">)</span>
 
-<span class="n">con</span> <span class="o">=</span> <span class="n">lite</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s1">&#39;rio-de-janeiro_brazil.db&#39;</span><span class="p">)</span>
-<span class="n">cur</span> <span class="o">=</span> <span class="n">con</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+<span class="n">P3</span><span class="o">.</span><span class="n">fix_problem1</span><span class="p">(</span><span class="n">con</span><span class="p">)</span>
 
-<span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;SELECT * FROM ways_tags WHERE key = &#39;addr:street&#39;&quot;</span><span class="p">)</span>
-<span class="n">list_to_correct</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
-<span class="k">for</span> <span class="n">address</span> <span class="ow">in</span> <span class="n">list_to_correct</span><span class="p">:</span>
-    <span class="k">if</span> <span class="n">first_word</span><span class="p">(</span><span class="n">address</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="ow">in</span> <span class="n">words_to_correct</span><span class="p">:</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">first_word</span><span class="p">(</span><span class="n">address</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">==</span> <span class="s1">&#39;R.&#39;</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="ow">or</span>
-            <span class="n">first_word</span><span class="p">(</span><span class="n">address</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">==</span> <span class="s1">&#39;rua&#39;</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)):</span>
-            <span class="n">new_part</span> <span class="o">=</span> <span class="s1">&#39;Rua&#39;</span>
-            <span class="n">old_part</span> <span class="o">=</span> <span class="n">address</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">1</span><span class="p">:]</span>
-            <span class="n">new_word</span> <span class="o">=</span> <span class="n">new_part</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">old_part</span><span class="p">)</span>
-            <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;UPDATE ways_tags SET value = &#39;&quot;</span> <span class="o">+</span> <span class="n">new_word</span> <span class="o">+</span> <span class="s2">&quot;&#39; WHERE id = &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">address</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot; and key = &#39;addr:street&#39;&quot;</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">first_word</span><span class="p">(</span><span class="n">address</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">==</span> <span class="s1">&#39;Av&#39;</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">):</span>
-            <span class="n">new_part</span> <span class="o">=</span> <span class="s1">&#39;Avenida&#39;</span>
-            <span class="n">old_part</span> <span class="o">=</span> <span class="n">address</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">1</span><span class="p">:]</span>
-            <span class="n">new_word</span> <span class="o">=</span> <span class="n">new_part</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">old_part</span><span class="p">)</span>
-            <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;UPDATE ways_tags SET value = &#39;&quot;</span> <span class="o">+</span> <span class="n">new_word</span> <span class="o">+</span> <span class="s2">&quot;&#39; WHERE id = &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">address</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot; and key = &#39;addr:street&#39;&quot;</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">first_word</span><span class="p">(</span><span class="n">address</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">==</span> <span class="s1">&#39;trav&#39;</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">):</span>
-            <span class="n">new_part</span> <span class="o">=</span> <span class="s1">&#39;Travessa&#39;</span>
-            <span class="n">old_part</span> <span class="o">=</span> <span class="n">address</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">1</span><span class="p">:]</span>
-            <span class="n">new_word</span> <span class="o">=</span> <span class="n">new_part</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">old_part</span><span class="p">)</span>
-            <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;UPDATE ways_tags SET value = &#39;&quot;</span> <span class="o">+</span> <span class="n">new_word</span> <span class="o">+</span> <span class="s2">&quot;&#39; WHERE id = &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">address</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot; and key = &#39;addr:street&#39;&quot;</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">first_word</span><span class="p">(</span><span class="n">address</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">==</span> <span class="s1">&#39;Estr.&#39;</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">):</span>
-            <span class="n">new_part</span> <span class="o">=</span> <span class="s1">&#39;Estrada&#39;</span>
-            <span class="n">old_part</span> <span class="o">=</span> <span class="n">address</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">1</span><span class="p">:]</span>
-            <span class="n">new_word</span> <span class="o">=</span> <span class="n">new_part</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">old_part</span><span class="p">)</span>
-            <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;UPDATE ways_tags SET value = &#39;&quot;</span> <span class="o">+</span> <span class="n">new_word</span> <span class="o">+</span> <span class="s2">&quot;&#39; WHERE id = &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">address</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot; and key = &#39;addr:street&#39;&quot;</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="p">(</span><span class="n">first_word</span><span class="p">(</span><span class="n">address</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">==</span> <span class="s1">&#39;Pça.&#39;</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="ow">or</span>
-            <span class="n">first_word</span><span class="p">(</span><span class="n">address</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">==</span> <span class="s1">&#39;Praca&#39;</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)):</span>
-            <span class="n">new_part</span> <span class="o">=</span> <span class="s1">&#39;Praça&#39;</span>
-            <span class="n">old_part</span> <span class="o">=</span> <span class="n">address</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">1</span><span class="p">:]</span>
-            <span class="n">new_word</span> <span class="o">=</span> <span class="n">new_part</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">old_part</span><span class="p">)</span>
-            <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;UPDATE ways_tags SET value = &#39;&quot;</span> <span class="o">+</span> <span class="n">new_word</span> <span class="o">+</span> <span class="s2">&quot;&#39; WHERE id = &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">address</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot; and key = &#39;addr:street&#39;&quot;</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">new_part</span> <span class="o">=</span> <span class="s1">&#39;Rua&#39;</span>
-            <span class="n">old_part</span> <span class="o">=</span> <span class="n">address</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
-            <span class="n">new_word</span> <span class="o">=</span> <span class="n">new_part</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">old_part</span><span class="p">)</span>
-            <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;UPDATE ways_tags SET value = &#39;&quot;</span> <span class="o">+</span> <span class="n">new_word</span> <span class="o">+</span> <span class="s2">&quot;&#39; WHERE id = &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">address</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot; and key = &#39;addr:street&#39;&quot;</span><span class="p">)</span>
 <span class="n">con</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
 <span class="n">con</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 </pre></div>
@@ -12371,6 +12100,7 @@ yes: 1
 <div class="output_area"><div class="prompt"></div>
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>rio-de-janeiro_brazil.db: 88.95MB
+example.osm: 6.04MB
 rio-de-janeiro_brazil.osm: 329.25MB
 nodes.csv: 91.59MB
 nodes_tags.csv: 5.08MB
@@ -12498,9 +12228,13 @@ O total de ways foi 190756.
 <span class="n">cur</span> <span class="o">=</span> <span class="n">con</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
 <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;SELECT value, count(*) FROM nodes_tags WHERE key = &#39;amenity&#39; GROUP BY value&#39;&#39;&#39;</span><span class="p">)</span>
 <span class="n">stores</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
-<span class="k">print</span><span class="p">(</span><span class="s1">&#39;Lojas e quantidades são:&#39;</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s1">&#39;Uma amostra das lojas e quantidades são:&#39;</span><span class="p">)</span>
+<span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span>
 <span class="k">for</span> <span class="n">store</span> <span class="ow">in</span> <span class="n">stores</span><span class="p">:</span>
+    <span class="n">counter</span> <span class="o">+=</span> <span class="mi">1</span>
     <span class="k">print</span><span class="p">(</span><span class="s1">&#39;A loja {0} tem {1} estabelecimentos no mapa.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">store</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">store</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+    <span class="k">if</span> <span class="n">counter</span> <span class="o">==</span> <span class="mi">10</span><span class="p">:</span>
+        <span class="k">break</span>
 <span class="n">con</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 </pre></div>
 
@@ -12514,7 +12248,7 @@ O total de ways foi 190756.
 
 <div class="output_area"><div class="prompt"></div>
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>Lojas e quantidades são:
+<pre>Uma amostra das lojas e quantidades são:
 A loja arts_centre tem 6 estabelecimentos no mapa.
 A loja atm tem 74 estabelecimentos no mapa.
 A loja bank tem 488 estabelecimentos no mapa.
@@ -12525,71 +12259,46 @@ A loja bicycle_parking tem 1469 estabelecimentos no mapa.
 A loja bicycle_rental tem 261 estabelecimentos no mapa.
 A loja brothel tem 14 estabelecimentos no mapa.
 A loja building tem 4 estabelecimentos no mapa.
-A loja bureau_de_change tem 7 estabelecimentos no mapa.
-A loja bus_station tem 155 estabelecimentos no mapa.
-A loja cafe tem 127 estabelecimentos no mapa.
-A loja car_fixing tem 3 estabelecimentos no mapa.
-A loja car_rental tem 9 estabelecimentos no mapa.
-A loja car_wash tem 25 estabelecimentos no mapa.
-A loja childcare tem 13 estabelecimentos no mapa.
-A loja cinema tem 28 estabelecimentos no mapa.
-A loja clinic tem 36 estabelecimentos no mapa.
-A loja clock tem 21 estabelecimentos no mapa.
-A loja college tem 15 estabelecimentos no mapa.
-A loja community_centre tem 8 estabelecimentos no mapa.
-A loja courthouse tem 9 estabelecimentos no mapa.
-A loja dentist tem 21 estabelecimentos no mapa.
-A loja doctors tem 29 estabelecimentos no mapa.
-A loja dojo tem 2 estabelecimentos no mapa.
-A loja drinking_water tem 12 estabelecimentos no mapa.
-A loja driving_school tem 5 estabelecimentos no mapa.
-A loja elevator tem 2 estabelecimentos no mapa.
-A loja embassy tem 36 estabelecimentos no mapa.
-A loja fast_food tem 821 estabelecimentos no mapa.
-A loja ferry_terminal tem 12 estabelecimentos no mapa.
-A loja fire_station tem 37 estabelecimentos no mapa.
-A loja food_court tem 3 estabelecimentos no mapa.
-A loja fountain tem 30 estabelecimentos no mapa.
-A loja fuel tem 445 estabelecimentos no mapa.
-A loja grave_yard tem 2 estabelecimentos no mapa.
-A loja gym tem 18 estabelecimentos no mapa.
-A loja hospital tem 154 estabelecimentos no mapa.
-A loja ice_cream tem 5 estabelecimentos no mapa.
-A loja keymaker tem 5 estabelecimentos no mapa.
-A loja kindergarten tem 133 estabelecimentos no mapa.
-A loja library tem 15 estabelecimentos no mapa.
-A loja locksmith tem 2 estabelecimentos no mapa.
-A loja love_hotel tem 21 estabelecimentos no mapa.
-A loja marketplace tem 13 estabelecimentos no mapa.
-A loja nightclub tem 19 estabelecimentos no mapa.
-A loja parking tem 222 estabelecimentos no mapa.
-A loja parking_entrance tem 53 estabelecimentos no mapa.
-A loja pharmacy tem 344 estabelecimentos no mapa.
-A loja place_of_worship tem 390 estabelecimentos no mapa.
-A loja police tem 159 estabelecimentos no mapa.
-A loja post_box tem 45 estabelecimentos no mapa.
-A loja post_office tem 66 estabelecimentos no mapa.
-A loja pub tem 390 estabelecimentos no mapa.
-A loja public_building tem 38 estabelecimentos no mapa.
-A loja recycling tem 8 estabelecimentos no mapa.
-A loja register_office tem 6 estabelecimentos no mapa.
-A loja restaurant tem 1027 estabelecimentos no mapa.
-A loja school tem 1536 estabelecimentos no mapa.
-A loja seamstress tem 3 estabelecimentos no mapa.
-A loja shelter tem 15 estabelecimentos no mapa.
-A loja social_facility tem 2 estabelecimentos no mapa.
-A loja studio tem 11 estabelecimentos no mapa.
-A loja taxi tem 122 estabelecimentos no mapa.
-A loja tec_common tem 6 estabelecimentos no mapa.
-A loja telephone tem 371 estabelecimentos no mapa.
-A loja theatre tem 39 estabelecimentos no mapa.
-A loja toilets tem 158 estabelecimentos no mapa.
-A loja townhall tem 14 estabelecimentos no mapa.
-A loja university tem 24 estabelecimentos no mapa.
-A loja vending_machine tem 7 estabelecimentos no mapa.
-A loja veterinary tem 31 estabelecimentos no mapa.
-A loja waste_basket tem 109 estabelecimentos no mapa.
-A loja waste_disposal tem 4 estabelecimentos no mapa.
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[13]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span></span><span class="c1"># Colocar os 3 usuários que mais modificaram bares</span>
+<span class="n">con</span> <span class="o">=</span> <span class="n">lite</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s1">&#39;rio-de-janeiro_brazil.db&#39;</span><span class="p">)</span>
+<span class="n">cur</span> <span class="o">=</span> <span class="n">con</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+<span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;SELECT ways.uid, count(*) as num FROM ways, ways_tags WHERE ways.id = ways_tags.id and</span>
+<span class="s1">            ways_tags.key = &#39;amenity&#39; and ways_tags.value = &#39;bar&#39; GROUP BY ways.uid ORDER BY num desc LIMIT 3&#39;&#39;&#39;</span><span class="p">)</span>
+<span class="n">users</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="s1">&#39;Os 3 usuários que mais modificaram bares:&#39;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">user</span> <span class="ow">in</span> <span class="n">users</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;O usuário {0} modificou {1} bares.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">user</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">user</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+    
+<span class="n">con</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Os 3 usuários que mais modificaram bares:
+O usuário 1746977 modificou 7 bares.
+O usuário 1281877 modificou 6 bares.
+O usuário 502691 modificou 5 bares.
 </pre>
 </div>
 </div>
@@ -12605,6 +12314,7 @@ A loja waste_disposal tem 4 estabelecimentos no mapa.
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Futuras-an&#225;lises">Futuras an&#225;lises<a class="anchor-link" href="#Futuras-an&#225;lises">&#182;</a></h2><p>Pode ser avaliado futuramente informações como a média de nomes que cada usuário teve. Esse tipo de análise não teria muitas dificuldades, pode-se até analisar quais usuários mais tiveram diferentes nomes.</p>
 <p>Outra análise seria melhor tratar os tipos de estabelecimentos. O problema é que precisaria de uma análise mais apurada dos estabelecimentos. Por exemplo, para mim 'waste_basket' deve ser o mesmo que 'waste_disposal', mas precisa de uma análise para confirmar se essa informação está certa e como podemos juntá-la.</p>
+<p>Uma terceira análise possível seria verificar o CEP dos estabelecimentos usando "Regular Expressions". O problema seria como proceguir para os dados errados. O mesmo poderia ser corrigido com uma pesquisa na internet para cada endereço errado ou simplesmente apagado. O caso perfeito seria a correção dos mesmo, mas isso seria trabalhoso.</p>
 <h2 id="Refer&#234;ncias">Refer&#234;ncias<a class="anchor-link" href="#Refer&#234;ncias">&#182;</a></h2><ul>
 <li><a href="http://stackoverflow.com/">http://stackoverflow.com/</a></li>
 <li><a href="https://www.openstreetmap.org">https://www.openstreetmap.org</a></li>
@@ -12614,19 +12324,6 @@ A loja waste_disposal tem 4 estabelecimentos no mapa.
 
 </div>
 </div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span></span> 
-</pre></div>
-
-</div>
-</div>
-</div>
-
 </div>
     </div>
   </div>
